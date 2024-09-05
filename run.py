@@ -1,24 +1,28 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from src.models.models import db
-from src.routes.routes import bp
+from extensions import db, ma, mail
+from src.routes.routes import bp, user_bp
+from flask_mail import Mail
+from config import Config
 
 app = Flask(__name__)
 
-# Configurations for the database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/sportify'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Load the configurations(env) from the Config class
+app.config.from_object(Config)
 
-# Initialize the database
+# Initialize the extensions
 db.init_app(app)
+ma.init_app(app)
+mail.init_app(app)
 
-# Initialize the migration
-migrate = Migrate(app, db, directory='src/db/migrations')
 
-# Register the blueprint
+migrate = Migrate(app, db, directory="src/db/migrations")
+
+# Register the blueprints
 app.register_blueprint(bp)
+app.register_blueprint(user_bp, url_prefix="/user")
 
-# Run the app, listening on all IPs, on port 5000 in debug mode
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+# Run the app
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
