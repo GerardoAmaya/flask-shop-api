@@ -1,0 +1,56 @@
+{
+    "products": [
+        {
+            "name": "Zapatillas Air Jordan 4 Retro de Mujer",
+            "description": "Zapatillas de alta calidad con amortiguación.",
+            "price": 249.99,
+            "discount_price": 209.99,
+            "image_url": "https://example.com/jordan4.jpg",
+            "brand_id": 1,
+            "category_id": 2,
+            "sport_id": 3,
+            "gender_id": 2,
+            "country_id": 1,
+            "composition": "Cuero 86% Sintético 14%"
+        },
+        {
+            "name": "Zapatillas Air Jordan 5 Retro de Hombre",
+            "description": "Zapatillas retro con diseño icónico.",
+            "price": 239.99,
+            "discount_price": 199.99,
+            "image_url": "https://example.com/jordan5.jpg",
+            "brand_id": 2,
+            "category_id": 1,
+            "sport_id": 3,
+            "gender_id": 1,
+            "country_id": 2,
+            "composition": "Cuero 90% Sintético 10%"
+        },
+        {
+            "name": "Zapatillas Adidas Ultraboost de Mujer",
+            "description": "Calzado para correr de alto rendimiento.",
+            "price": 180.00,
+            "discount_price": 150.00,
+            "image_url": "https://example.com/ultraboost.jpg",
+            "brand_id": 3,
+            "category_id": 2,
+            "sport_id": 2,
+            "gender_id": 2,
+            "country_id": 3,
+            "composition": "Malla transpirable con amortiguación Boost"
+        },
+        {
+            "name": "Zapatillas Nike Air Max 270 de Hombre",
+            "description": "Zapatillas de estilo urbano con cámara de aire.",
+            "price": 150.00,
+            "discount_price": 120.00,
+            "image_url": "https://example.com/airmax270.jpg",
+            "brand_id": 1,
+            "category_id": 1,
+            "sport_id": 1,
+            "gender_id": 1,
+            "country_id": 1,
+            "composition": "Malla transpirable con cámara de aire"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "categories": [
+        {"name": "Hombre", "description": "Men's products"},
+        {"name": "Mujer", "description": "Women's products"},
+        {"name": "Niño", "description": "Kids' products"},
+        {"name": "Deporte", "description": "Sports equipment"},
+        {"name": "Casual", "description": "Casual wear"}
+    ]
+}

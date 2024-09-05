@@ -1,0 +1,9 @@
+{
+    "brands": [
+        {"name": "Nike", "description": "Brand for athletes"},
+        {"name": "Jordan", "description": "Michael Jordan's brand"},
+        {"name": "Adidas", "description": "All in or nothing"},
+        {"name": "Converse", "description": "Shoes for the rebels"},
+        {"name": "New Balance", "description": "Classic American sneakers"}
+    ]
+}
