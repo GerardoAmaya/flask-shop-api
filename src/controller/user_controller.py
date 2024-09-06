@@ -16,7 +16,6 @@ from datetime import datetime, timedelta
 from extensions import mail
 
 
-# Register a new user with transaction handling
 def register():
     """
     Register a new user in the system.
@@ -64,7 +63,6 @@ def register():
         db.session.close()  # Close the session in any case
 
 
-# User login
 def login():
     """
     Handle user login.
@@ -104,13 +102,11 @@ def login():
         return HttpHelper.response(HttpHelper.retErrorServer, str(e))
 
 
-# Generate a password reset token
 def generate_reset_token(email):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return serializer.dumps(email, salt="password-reset-salt")
 
 
-# Request a password reset
 def request_password_reset():
     """
     Request a password reset token for a user.
@@ -172,7 +168,6 @@ def request_password_reset():
         return HttpHelper.response(HttpHelper.retErrorServer, {"error": str(e)})
 
 
-# Verify the password reset token
 def verify_reset_token(token):
     """
     Verify the password reset token.
@@ -195,7 +190,6 @@ def verify_reset_token(token):
         return None  # Invalid token
 
 
-# Reset the password using the token
 def reset_password():
     """
     Reset the user's password using a valid reset token.

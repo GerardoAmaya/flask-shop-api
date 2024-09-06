@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from extensions import db, ma, mail
-from src.routes.routes import bp, user_bp
+from src.routes.routes import bp, user_bp, product_bp
 from flask_mail import Mail
 from config import Config
 
@@ -22,6 +22,7 @@ migrate = Migrate(app, db, directory="src/db/migrations")
 # Register the blueprints
 app.register_blueprint(bp)
 app.register_blueprint(user_bp, url_prefix="/user")
+app.register_blueprint(product_bp, url_prefix="/product")
 
 # Run the app
 if __name__ == "__main__":

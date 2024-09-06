@@ -2,8 +2,13 @@
 from marshmallow import Schema, fields, validate, ValidationError
 
 
-# Validator for user registration
 class UserRegisterSchema(Schema):
+    """
+    This class is a schema validator for the user registration endpoint.
+    It validates the incoming JSON data for registering a new
+    user in the system.
+    """
+
     email = fields.Email(
         required=True,
         error_messages={
@@ -26,8 +31,12 @@ class UserRegisterSchema(Schema):
     )
 
 
-# Validator for user login
 class UserLoginSchema(Schema):
+    """
+    This class is a schema validator for the user login endpoint.
+    It validates the incoming JSON data for logging in a user.
+    """
+
     email = fields.Email(
         required=True,
         error_messages={
@@ -41,8 +50,12 @@ class UserLoginSchema(Schema):
     )
 
 
-# Validator for password reset request
 class PasswordResetRequestSchema(Schema):
+    """
+    This class is a schema validator for the password reset request endpoint.
+    It validates the incoming JSON data for requesting a password reset.
+    """
+
     email = fields.Email(
         required=True,
         error_messages={
@@ -51,8 +64,13 @@ class PasswordResetRequestSchema(Schema):
         },
     )
 
-# Validator for confirming the password reset, and setting a new password
+
 class ResetPasswordSchema(Schema):
+    """
+    This class is a schema validator for the password reset endpoint.
+    It validates the incoming JSON data for resetting the password.
+    """
+
     token = fields.Str(
         required=True,
         error_messages={
