@@ -6,7 +6,7 @@ from src.routes.routes import bp, user_bp
 from flask_mail import Mail
 from config import Config
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='src/templates')
 
 # Load the configurations(env) from the Config class
 app.config.from_object(Config)

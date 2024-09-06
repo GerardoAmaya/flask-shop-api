@@ -1,13 +1,19 @@
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, render_template
 from src.db import db
 from src.models.models import User
-from src.validators.user_validator import UserRegisterSchema, UserLoginSchema
+from src.validators.user_validator import (
+    UserRegisterSchema,
+    UserLoginSchema,
+    PasswordResetRequestSchema,
+    ResetPasswordSchema,
+)
 from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from src.helpers.http_helper import HttpHelper
 from datetime import datetime, timedelta
+from extensions import mail
 
 
 # Register a new user with transaction handling
@@ -98,51 +104,75 @@ def login():
         return HttpHelper.response(HttpHelper.retErrorServer, str(e))
 
 
+# Generate a password reset token
 def generate_reset_token(email):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     return serializer.dumps(email, salt="password-reset-salt")
 
 
+# Request a password reset
 def request_password_reset():
-    email = request.json.get("email")
+    """
+    Request a password reset token for a user.
 
-    if not email:
+    The token is sent to the user's email address if the user exists.
+
+    Returns:
+        JSON response with success or error message.
+    """
+    schema = PasswordResetRequestSchema()
+
+    try:
+        # Validate the request data
+        user_data = schema.load(request.json)
+
+        email = user_data["email"]
+
+        # Find the user by email
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return HttpHelper.response(
+                HttpHelper.retNotFound, {"message": "User not found"}
+            )
+
+        # Generate token
+        token = generate_reset_token(user.email)
+
+        # Update the user with the reset token and expiry date
+        user.reset_token = token
+        user.reset_token_expiry = datetime.utcnow() + timedelta(
+            hours=1
+        )  # Token valid for 1 hour
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        # Generate the reset URL
+        reset_url = f"http://localhost:5000/user/reset_password_form?token={token}"
+
+        # Render the email template and pass the reset URL to the template
+        html_body = render_template("reset_password.html", reset_url=reset_url)
+
+        # Send the token via email
+        msg = Message("Password Reset Request", recipients=[user.email])
+        msg.html = html_body  # Use HTML body for the email
+
+        # Send the email
+        mail.send(msg)
+
         return HttpHelper.response(
-            HttpHelper.retError, {"message": "Email is required"}
+            HttpHelper.retOK, {"message": "Password reset token sent to your email"}
         )
 
-    # Find the user by email
-    user = User.query.filter_by(email=email).first()
+    except ValidationError as err:
+        return HttpHelper.response(HttpHelper.retError, err.messages)
 
-    if not user:
-        return HttpHelper.response(
-            HttpHelper.retNotFound, {"message": "User not found"}
-        )
-
-    # Generate token
-    token = generate_reset_token(user.email)
-
-    # Update the user with the reset token and expiry date
-    user.reset_token = token
-    user.reset_token_expiry = datetime.utcnow() + timedelta(
-        hours=1
-    )  # Token valid for 1 hour
-
-    # Commit the changes to the database
-    db.session.commit()
-
-    # Send the token via email
-    msg = Message("Password Reset Request", recipients=[user.email])
-    msg.body = f"Your password reset token is: {token}"
-
-    # TODO: Send the email template with the token
-    # mail.send(msg)
-
-    return HttpHelper.response(
-        HttpHelper.retOK, {"message": "Password reset token sent to your email"}
-    )
+    except Exception as e:
+        return HttpHelper.response(HttpHelper.retErrorServer, {"error": str(e)})
 
 
+# Verify the password reset token
 def verify_reset_token(token):
     """
     Verify the password reset token.
@@ -175,35 +205,42 @@ def reset_password():
     Returns:
         JSON response with success or error message.
     """
-    token = request.json.get("token")
-    new_password = request.json.get("new_password")
+    schema = ResetPasswordSchema()
 
-    if not token or not new_password:
+    try:
+        # Validate the incoming JSON data
+        reset_data = schema.load(request.json)
+
+        token = reset_data["token"]
+        new_password = reset_data["new_password"]
+
+        # Verify the token
+        email = verify_reset_token(token)
+        if not email:
+            return HttpHelper.response(
+                HttpHelper.retError, {"message": "Invalid or expired token"}
+            )
+
+        # Find the user by email
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return HttpHelper.response(
+                HttpHelper.retNotFound, {"message": "User not found"}
+            )
+
+        # Update the user's password
+        hashed_password = generate_password_hash(new_password)
+        user.password = hashed_password
+
+        # Commit the changes
+        db.session.commit()
+
         return HttpHelper.response(
-            HttpHelper.retError, {"message": "Token and new password are required"}
+            HttpHelper.retOK, {"message": "Password successfully reset"}
         )
 
-    # Verify the token
-    email = verify_reset_token(token)
-    if not email:
-        return HttpHelper.response(
-            HttpHelper.retError, {"message": "Invalid or expired token"}
-        )
+    except ValidationError as err:
+        return HttpHelper.response(HttpHelper.retUnprocessableContent, err.messages)
 
-    # Find the user by email
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return HttpHelper.response(
-            HttpHelper.retNotFound, {"message": "User not found"}
-        )
-
-    # Update the user's password
-    hashed_password = generate_password_hash(new_password)
-    user.password = hashed_password
-
-    # Commit the changes
-    db.session.commit()
-
-    return HttpHelper.response(
-        HttpHelper.retOK, {"message": "Password successfully reset"}
-    )
+    except Exception as e:
+        return HttpHelper.response(HttpHelper.retErrorServer, {"error": str(e)})

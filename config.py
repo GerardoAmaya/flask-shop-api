@@ -10,12 +10,6 @@ class Config:
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get(
-        "MAIL_USERNAME"
-    )  # Toma el correo desde la variable de entorno
-    MAIL_PASSWORD = os.environ.get(
-        "MAIL_PASSWORD"
-    )  # Toma la contraseña desde la variable de entorno
-    MAIL_DEFAULT_SENDER = (
-        os.environ.get("MAIL_DEFAULT_SENDER") or "gerardoamayasv2000@gmail.com"
-    )
+    MAIL_USERNAME = "gerardoamayasv2000@gmail.com"
+    MAIL_PASSWORD = "spfw nytt wkgk bqks"
+    MAIL_DEFAULT_SENDER = "gerardoamayasv2000@gmail.com"
