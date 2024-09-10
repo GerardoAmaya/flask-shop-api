@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask import request, render_template
+from src.middleware.auth_middleware import require_token
 from src.controller.user_controller import (
     register,
     login,
@@ -18,6 +19,9 @@ from src.controller.product_controller import (
 bp = Blueprint("routes", __name__)
 user_bp = Blueprint("user_bp", __name__)
 product_bp = Blueprint("product_bp", __name__)
+
+# Add the token_required middleware to the product blueprint
+product_bp.before_request(require_token)
 
 @bp.route("/")
 def home():

@@ -16,3 +16,4 @@ Werkzeug==3.0.4
 Flask-Marshmallow
 marshmallow-sqlalchemy
 Flask-Mail
+PyJWT

@@ -1,6 +1,10 @@
 from flask import request, jsonify, current_app, render_template
+import jwt
 from src.db import db
 from src.models.models import User
+from src.middleware.auth_middleware import (
+    token_required,
+)  # Import the token_required decorator
 from src.validators.user_validator import (
     UserRegisterSchema,
     UserLoginSchema,
@@ -65,12 +69,12 @@ def register():
 
 def login():
     """
-    Handle user login.
+    Handle user login and generate JWT token.
 
-    This function checks user credentials and returns an appropriate response.
+    This function checks user credentials and returns a JWT token if successful.
 
     Returns:
-        JSON response with success or error message.
+        JSON response with token or error message.
     """
     schema = UserLoginSchema()
 
@@ -92,8 +96,19 @@ def login():
                 HttpHelper.retUnauthorized, {"message": "Incorrect password"}
             )
 
-        # Return success response (could return token, JWT, etc.)
-        return HttpHelper.response(HttpHelper.retOK, {"message": "Login successful"})
+        # Generate JWT token
+        token = jwt.encode(
+            {
+                "user_id": user.id,
+                "exp": datetime.utcnow()
+                + timedelta(hours=24),  # Token expires in 24 hours
+            },
+            current_app.config["SECRET_KEY"],
+            algorithm="HS256",
+        )
+
+        # Return the token in the response
+        return HttpHelper.response(HttpHelper.retOK, {"token": token})
 
     except ValidationError as err:
         return HttpHelper.response(HttpHelper.retUnprocessableContent, err.messages)
